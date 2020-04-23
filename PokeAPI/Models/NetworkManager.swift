@@ -14,7 +14,7 @@ class NetworkManager {
     
     
     
-    func fetchPokemon(givenUrl: String, _ completion: @escaping (APIResponse<[Pokemon]>) -> Void) {
+    func fetchPokemon(givenUrl: String, _ completion: @escaping (APIResponse<Result>) -> Void) {
         
         
         
@@ -28,8 +28,12 @@ class NetworkManager {
             
             let dataTask = defaultSession.dataTask(with: request, completionHandler: { (data, response, error) -> Void in
                 
+                if let error = error {
+                    return completion(APIResponse.failure(EndPointError.noData))
+                }
+                
                 guard let data = data else {
-                    completion(APIResponse.failure(EndPointError.noData))
+                    return completion(APIResponse.failure(EndPointError.noData))
                 }
                 
                 guard let result = try? JSONDecoder().decode(Result.self, from: data) else {
@@ -38,7 +42,7 @@ class NetworkManager {
                 }
                 
                 DispatchQueue.main.async {
-                    completion(APIResponse.success(result.pokemon))
+                    completion(APIResponse.success(result))
                 }
                 
             })

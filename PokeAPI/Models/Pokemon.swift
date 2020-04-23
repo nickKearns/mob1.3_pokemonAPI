@@ -15,8 +15,7 @@ import Foundation
 struct Result: Codable {
     let count: Int
     let next: String
-    let previous: JSONNull?
-    let pokemon: [Pokemon]
+    let results: [Pokemon]
 }
 
 // MARK: - Result

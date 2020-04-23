@@ -9,7 +9,7 @@
 import UIKit
 
 class MainVC: UIViewController {
-
+    
     
     let startingURL: String = "https://pokeapi.co/api/v2/pokemon"
     var pokemonList: [Pokemon] = [] {
@@ -17,7 +17,7 @@ class MainVC: UIViewController {
             pokemonTableView.reloadData()
         }
     }
-    let nextURL: String = ""
+    var nextURL: String = ""
     
     
     @IBOutlet weak var pokemonTableView: UITableView!
@@ -29,11 +29,31 @@ class MainVC: UIViewController {
         super.viewDidLoad()
         pokemonTableView.delegate = self
         pokemonTableView.dataSource = self
+//        pokemonTableView.register(PokemonTableViewCell.self, forCellReuseIdentifier: "pokemonCell")
+        updateFeed(url: startingURL)
+        
         // Do any additional setup after loading the view.
     }
-
-
+    
+    
+    
+    
+    func updateFeed(url: String) {
+        networkManager.fetchPokemon(givenUrl: url) { result in
+            switch result {
+            case let .success(APIResult):
+                self.pokemonList = APIResult.results
+                self.nextURL = APIResult.next
+            case let .failure(error):
+                print(error)
+            }
+            
+            
+        }
+    }
 }
+
+
 
 extension MainVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -45,11 +65,19 @@ extension MainVC: UITableViewDelegate, UITableViewDataSource {
         
         let pokemon = pokemonList[indexPath.row]
         
-        cell.nameLabel.text = pokemon.name
+        cell.pokemon = pokemon
+            
         return cell
     }
     
     
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
+            if indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
+                updateFeed(url: self.nextURL)
+        }
+    }
     
     
 }
+
