@@ -29,7 +29,7 @@ class MainVC: UIViewController {
         super.viewDidLoad()
         pokemonTableView.delegate = self
         pokemonTableView.dataSource = self
-//        pokemonTableView.register(PokemonTableViewCell.self, forCellReuseIdentifier: "pokemonCell")
+        //        pokemonTableView.register(PokemonTableViewCell.self, forCellReuseIdentifier: "pokemonCell")
         updateFeed(url: startingURL)
         
         // Do any additional setup after loading the view.
@@ -42,7 +42,7 @@ class MainVC: UIViewController {
         networkManager.fetchPokemon(givenUrl: url) { result in
             switch result {
             case let .success(APIResult):
-                self.pokemonList = APIResult.results
+                self.pokemonList.append(contentsOf: APIResult.results)
                 self.nextURL = APIResult.next
             case let .failure(error):
                 print(error)
@@ -66,16 +66,23 @@ extension MainVC: UITableViewDelegate, UITableViewDataSource {
         let pokemon = pokemonList[indexPath.row]
         
         cell.pokemon = pokemon
-            
+        
         return cell
     }
     
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         
-            if indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
-                updateFeed(url: self.nextURL)
+
+        
+        let lastElement = pokemonList.count - 1
+        if indexPath.row == lastElement {
+            updateFeed(url: self.nextURL)
+            
+            
+            
         }
+        
     }
     
     
